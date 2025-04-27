@@ -1,0 +1,73 @@
+@if (loading) {
+	<div class="d-flex justify-content-center h-100 align-items-center">
+		<div class="spinner-border" role="status">
+		</div>
+	</div>
+}
+@if (!loading) {
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th scope="col">#</th>
+			<th scope="col">{{'DIAGNOSIS' | transloco}}</th>
+			<th scope="col">{{'ICD-CODE' | transloco}}</th>
+			<th scope="col">{{'ICD-DESCRIPTION' | transloco}}</th>
+			<th scope="col">{{'ACTION' | transloco}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		@for (request of codeRequests; track request; let i = $index) {
+			<tr>
+				<td scope="row">{{ ((page - 1)*pageSize) + i + 1 }}</td>
+				<td>					
+					<a href="https://18.134.160.8:8443/csp/healthshare/encoder/EnsPortal.VisualTrace.zen?SESSIONID={{ request.MessageId }}" target="_blank">{{ request.Description }}</a>
+				</td>
+				<td>
+					{{ request.CodeId }}
+				</td>
+				<td>
+					{{request.CodeDescription}}
+				</td>
+				<td>
+					<button type="button" class="btn btn-success" (click)="open(content, request.Id, request.Description)">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+							<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+						</svg>
+					</button>
+					<button type="button" class="btn btn-primary " style="margin-left: 6px;" (click)="sendNotification(request.Id)" [ngClass]="{'disabled': request.CodeId == ''}">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+							<path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+						</svg>
+					</button>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+<div class="d-flex justify-content-between p-2">
+	<ngb-pagination
+		[collectionSize]="collectionSize"
+		[(page)]="page"
+		[pageSize]="pageSize"
+		(pageChange)="refreshRequests()"
+	>
+	</ngb-pagination>
+
+	<select class="form-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshRequests()">
+		<option [ngValue]="10" selected>10 {{'CODES-PAGE' | transloco}}</option>
+		<option [ngValue]="15">15 {{'CODES-PAGE' | transloco}}</option>
+		<option [ngValue]="20">20 {{'CODES-PAGE' | transloco}}</option>
+	</select>
+</div>
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">{{'SIMILARITIES' | transloco}}: {{codeRequestDescription}}</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+	</div>
+	<div class="modal-body">
+		<app-codelist [codeRequestId]="codeRequestId" (newCodeEvent)="loadRequests(); modal.close('Code saved')"></app-codelist>
+	</div>
+	<div class="modal-footer">
+	</div>
+</ng-template>
+}

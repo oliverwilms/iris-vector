@@ -1,0 +1,45 @@
+<div class="w-100 h-100 overflow-hidden">
+    <div class="row loader-section">
+        <div class="col">
+            <div class="p-4 pb-0 h-100">
+                <label class="font-weight-bold">{{'CSV-IMPORT' | transloco}}:</label>
+                <div class="h-100 w-100 border text-section overflow-hidden p-2">
+                    <label>{{'CSV-FORMAT' | transloco}}:</label>
+                    <ol>
+                        <li>
+                            {{'NO-HEADERS' | transloco}}
+                        </li>
+                        <li>
+                            {{'SEPARATION-CHARACTER' | transloco}} <b>;</b>
+                        </li>
+                        <li>
+                            {{'COLUMN-ICD' | transloco}}
+                        </li>
+                        <li>
+                            {{'COLUMN-DESCRIPTION' | transloco}}
+                        </li>
+                    </ol>
+                    <p class="terminal w-50">
+                        A00.0;{{'DIAG-1' | transloco}};<br/>
+                        A00.1;{{'DIAG-2' | transloco}};<br/>
+                        A00.9;{{'DIAG-3' | transloco}};<br/>
+                        A01.00;{{'DIAG-4' | transloco}};<br/>
+                        A01.01;{{'DIAG-5' | transloco}};
+                    </p>
+                    <p>
+                        <input type="file" (change)="onFileChange($event)" accept="csv/*" [ngClass]="{'disabled': loading}">
+                    </p>
+                    <p>
+                        {{'IMPORTED-RECORDS' | transloco}}: {{recordsSaved}}
+                    </p>
+                    <p>
+                        {{'VECTORIZED-RECORDS' | transloco}}: {{recordsVectorized}}
+                    </p>
+                    <p>
+                        <ngb-progressbar class="w-100" [showValue]="true" type="success" [value]="percentageVectorized" />
+                    </p>                        
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,91 @@
+<div class="w-100 h-100 overflow-hidden">
+    <div class="row">
+        <div class="col">
+            <form class="p-4 pb-0" (ngSubmit)="onSubmit()" [formGroup]="textForm">
+                <div class="form-group">
+                    <label for="textToAnalyze" class="font-weight-bold">{{'TEXT-ANALYZE' | transloco}}:</label>
+                    <textarea class="form-control" formControlName="TextToAnalyze" rows="8" name="textToAnalyze"></textarea>
+                    <label for="useLLM" class="font-weight-bold form-check-label">{{'USE-LLM' | transloco}}: </label>
+                    <input type="checkbox" class="btn btn-primary" class="form-check-input checkbox-form" name="useLLM" formControlName="UseLLM" value="true">
+                </div>
+                <div class="form-group pt-4 text-center">
+                    <button type="submit" class="btn btn-primary" [ngClass]="{'disabled': loading}">
+                        <span class="margin-label">{{'ANALYZE-TEXT' | transloco}}</span>  
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row h-50">        
+        <div class="col-7">
+            <div class="p-4 h-100">
+                <label class="font-weight-bold">{{'FINDINGS' | transloco}}:</label>
+                @if (loading && !error) {
+                <div class="h-100 w-100 text-section border d-flex align-items-center justify-content-center">
+                    <ngb-progressbar class="m-3 w-100" [showValue]="true" type="success" [value]="totalReceived" />
+                </div>    
+                }
+                @if (!loading && !error) {
+                <div class="h-100 w-100 border text-section">
+                    <span class="h-100" [innerHTML]="textUpdated"></span>
+                </div>
+                }
+                @if (error) {
+                <div class="h-100 w-100 border d-flex align-items-center justify-content-center">
+                    <ngb-progressbar class="m-3 w-100" [showValue]="false" type="danger" [value]="100">{{'ERROR-MESSAGE' | transloco}}</ngb-progressbar>
+                </div>    
+                }
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="p-4 h-100">
+                <label class="font-weight-bold">{{'POSSIBLE-DIAGNOSES' | transloco}}:</label>
+                <div class="h-100 w-100 border text-section">
+                    @if (loading){
+                        <div class="d-flex justify-content-center h-100 align-items-center">
+                            <div class="spinner-border" role="status">
+                            </div>
+                        </div>                        
+                    }
+                    @if (!loading && !error) {
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{'TEXT' | transloco}}</th>
+                                <th scope="col">{{'MATCHES' | transloco}}</th>
+                                <th scope="col">{{'ACTION' | transloco}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>                                            
+                        @for (textAndDiagnostic of textAndDiagnosticList; track $index) {                                                    
+                            <tr (mouseover)="markDiagnosis(textAndDiagnostic.rawText)"  (mouseout)="unmarkDiagnosis()">
+                                <td>{{textAndDiagnostic.rawText}}</td>
+                                <td>{{textAndDiagnostic.diagnostics.length}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success" (click)="open(content, textAndDiagnostic)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        }                        
+                        </tbody>
+                    </table>
+                }
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-template #content let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">{{'SIMILARITIES' | transloco}}: {{diagnosticText}}</h4>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+        </div>
+        <div class="modal-body">
+            <app-matches-list [diagnostics]="diagnosticsSelected" (newCodeEvent)="modal.close('Code saved')"></app-matches-list>
+        </div>
+        <div class="modal-footer">
+        </div>
+    </ng-template>
+</div>
