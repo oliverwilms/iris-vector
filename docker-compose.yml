@@ -1,0 +1,65 @@
+services:  
+    
+  # iris
+  iris:
+    init: true
+    container_name: iris
+    build:
+      context: .
+      dockerfile: iris/Dockerfile
+    ports:
+      - 52774:52773
+      - 51774:1972
+    volumes:
+    - ./iris/shared:/iris-shared
+    environment:
+    - ISC_DATA_DIRECTORY=/iris-shared/durable
+    command: --check-caps false --ISCAgent false
+    mem_limit: 30G
+    memswap_limit: 32G
+    depends_on:
+      - ollama
+
+  # web gateway container
+  webgateway:
+    init: true
+    container_name: webgateway
+    build:
+      context: .
+      dockerfile: webgateway/Dockerfile
+    hostname: webgateway
+    ports:
+    - "8080:80"
+    - "8443:443"
+    environment:
+    - ISC_DATA_DIRECTORY=/webgateway-shared/durable
+    - ISC_CSP_CONF_FILE=/webgateway-shared/CSP.conf
+    - ISC_CSP_INI_FILE=/webgateway-shared/CSP.ini
+    volumes:
+    - ./webgateway/shared:/webgateway-shared
+    depends_on:
+    - iris  
+
+    # angular
+  angular:
+    init: true
+    container_name: encoder-ui
+    build:
+      context: .
+      dockerfile: encoder-ui/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - iris
+
+  ## llm locally installed
+  ollama:
+    build:
+      context: .
+      dockerfile: ollama/Dockerfile
+    container_name: ollama
+    volumes:
+    - ./ollama/shared:/ollama-shared
+    ports:
+      - "11434:11434"
